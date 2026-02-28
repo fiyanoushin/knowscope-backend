@@ -5,6 +5,7 @@ from app.utils import save_image
 # from app.Jwt_utils.auth import get_current_user
 from .jwt_handler import get_current_user
 from bson import ObjectId
+from app.Utility.utils import serialize_student
 
 
 
@@ -28,6 +29,9 @@ def objectid_to_str(obj):
     if isinstance(obj, ObjectId):
         return str(obj)
     return obj
+
+
+
 @student_router.post("/create")
 async def create_student(
     name: str = Form(...),
@@ -68,6 +72,16 @@ async def get_my_profile(current_user: dict = Depends(get_user_from_header)):
         "created_by": student.get("created_by"),
         "learningstyle": student.get("learningstyle", None)
     }
+
+
+@student_router.get("/show_alluserprofile", response_model=list[dict])
+async def get_all_students():
+    students = []
+    cursor = student_collection.find({})
+    async for student in cursor:
+        students.append(serialize_student(student))
+        print(student)
+    return students
 
 
 

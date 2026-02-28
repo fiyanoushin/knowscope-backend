@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File, Form,Header,Depends
 from fastapi.responses import JSONResponse
 from datetime import datetime
 import os
@@ -9,23 +9,33 @@ from bson import ObjectId
 from fastapi import HTTPException
 from collections import defaultdict
 from pymongo import ASCENDING
+from .jwt_utils import get_current_user_from_header ,require_admin
 
+
+    
+    
 
 router = APIRouter()
 router = APIRouter(prefix="/api/textbook", tags=["Text Book"])
+
+
+# @router.get("/me")
+# async def read_my_profile(current_user: dict = Depends(get_current_user_from_header)):
+#     # current_user = {'user_id': ..., 'email': ...}
+#     return {"message": "Current user fetched successfully", "user": current_user}
+
+
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "textbooks")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+
+
+
 @router.post("/upload-textbook")
-async def upload_textbook(
-    class_name: int = Form(...),
-    subject: str = Form(...),
-    part: str = Form(...),
-    file: UploadFile = File(...)
-):
+async def upload_textbook(class_name: int = Form(...),subject: str = Form(...),part: str = Form(...),file: UploadFile = File(...),current_admin: dict = Depends(require_admin)):
     filename = os.path.basename(file.filename)
     file_location = os.path.join(UPLOAD_FOLDER, filename)
     with open(file_location, "wb") as buffer:
@@ -37,7 +47,8 @@ async def upload_textbook(
         "file_name": filename,
         "file_path": file_location, 
         "file_url": f"http://localhost:8001/static/textbooks/{filename}",
-        "uploaded_at": datetime.utcnow()
+        "uploaded_at": datetime.utcnow(),
+        "uploaded_by": current_admin["user_id"]
     }
     result = await textbook_collection.insert_one(textbook_data)
 

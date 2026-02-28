@@ -13,4 +13,7 @@ db = client[DB_NAME]
 
 # example collection
 users_collection = db["users"]
+blacklist_collection = db["token_blacklist"]
+
+
 student_collection = db["students"] 

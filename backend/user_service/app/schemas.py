@@ -9,7 +9,7 @@ class UserResponse(BaseModel):
     email: EmailStr
     name: str | None = None
     picture: str | None = None
-
+    role: str | None = None 
 class AuthResponse(BaseModel):
     access_token: str
     user: UserResponse
