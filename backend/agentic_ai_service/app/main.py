@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from app.schemas.mcq import MCQRequest, MCQResponse
 from app.graphs.mcq_graph import run_mcq_pipeline
 from app.services.quiz_repository import save_quiz
-from app.schemas.evaluation import EvaluationRequest
+from app.schemas.evaluation import EvaluationRequest, EvaluationResponse
 from app.graphs.evaluation_graph import run_evaluation_pipeline
 
 app = FastAPI(title="Knowscope Agentic Service")
@@ -45,18 +45,32 @@ async def generate_mcq(request: MCQRequest):
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@app.post("/api/mcq/evaluate")
+@app.post("/api/mcq/evaluate", response_model=EvaluationResponse)
 async def evaluate_quiz(request: EvaluationRequest):
 
     try:
-        result = await run_evaluation_pipeline(
+        state = await run_evaluation_pipeline(
+            student_id=request.student_id,
             quiz_id=request.quiz_id,
             user_answers=request.user_answers
         )
-        return result
+        
+        return {
+            "quiz_id": state["quiz_id"],
+            "total_questions": state["total_questions"],
+            "correct_answers": state["correct_answers"],
+            "score_percentage": state["score"],
+            "strong_areas": state["strong_topics"],
+            "weak_areas": state["weak_topics"],
+            "feedback": state.get("feedback", ""),
+            # "improvement_suggestions": state["improvement_suggestions"], 
+            "recommendations": state.get("recommendations", "")
+        }
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     except Exception:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail="Evaluation failed")    

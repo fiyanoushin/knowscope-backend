@@ -6,3 +6,4 @@ db = client[settings.DATABASE_NAME]
 
 quizzes_collection = db["quizzes"]
 evaluations_collection = db["evaluations"]
+students_collection = db["students"]
