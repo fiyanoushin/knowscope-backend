@@ -9,7 +9,6 @@ class UserResponse(BaseModel):
     email: EmailStr
     name: str | None = None
     picture: str | None = None
-
 class AuthResponse(BaseModel):
     access_token: str
     user: UserResponse
