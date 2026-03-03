@@ -33,21 +33,21 @@ async def read_my_profile(current_user: dict = Depends(get_current_user_from_hea
 
 
 
-class QuestionRequest(BaseModel):
-    """
-    Students provide ONLY a question.
-    The system automatically searches all stored textbooks.
-    """
-    question: str = Field(
-        ...,
-        min_length=3,
-        max_length=500,
-        description="The student's question (no class or subject needed)"
-    )
-    top_k: Optional[int] = Field(
-        5, ge=1, le=20,
-        description="Number of textbook chunks to retrieve"
-    )
+# class QuestionRequest(BaseModel):
+#     """
+#     Students provide ONLY a question.
+#     The system automatically searches all stored textbooks.
+#     """
+#     question: str = Field(
+#         ...,
+#         min_length=3,
+#         max_length=500,
+#         description="The student's question (no class or subject needed)"
+#     )
+#     top_k: Optional[int] = Field(
+#         5, ge=1, le=20,
+#         description="Number of textbook chunks to retrieve"
+#     )
 
 
 class QuestionResponse(BaseModel):
@@ -318,3 +318,7 @@ async def delete_book_chunks(book_id: str):
             return {"message": f"❌ Failed to delete chunks for book: {book_id}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+    
+    
+    
